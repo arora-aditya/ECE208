@@ -8,6 +8,10 @@ release:
 build:
 	g++ dpll.cpp $(STD) $(WARNINGS) $(OUTPUT)
 
+.PHONY: test
+test: build
+	./test.sh		
+
 .PHONY: clean
 clean: 
 	rm *.o 
