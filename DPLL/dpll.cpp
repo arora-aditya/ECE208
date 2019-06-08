@@ -6,6 +6,7 @@
 #include <map>
 
 bool dpll(char*);
+bool dpllInner(const std::vector<std::vector<int>> &,std::set<int>,std::map<int,bool>);
 std::pair<std::vector<std::vector<int> >,std::set<int> > parse(char*);
 std::vector<int> parseClause(const std::string &);
 void addVars(std::set<int> &, const std::vector<int> &);
@@ -63,7 +64,22 @@ bool dpll(char *file_name) {
 	std::sort(clauses.begin(), clauses.end(),
 			[](std::vector<int> a, std::vector<int> b) -> bool { return a.size() > b.size();}); // Sort by size
 	std::set<int> variables = parsedClause.second;
-	return true;
+	std::map<int,bool> dict;
+	return dpllInner(clauses,variables,dict);
+}
+
+bool dpllInner(const std::vector<std::vector<int>> &formula, std::set<int> unassigned, std::map<int,bool> assigned) {
+	if (unassigned.empty()) {
+		return invalidAssignment(formula, assigned);
+	}
+	else if (invalidAssignment(formula,assigned)) return false;
+	int var = (*unassigned.begin());
+	unassigned.erase(var);
+	assigned[var] = true;
+	if (dpllInner(formula,unassigned,assigned)) return true;
+	assigned[var] = false;
+	if (dpllInner(formula,unassigned,assigned)) return true;
+	return false;
 }
 
 std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
