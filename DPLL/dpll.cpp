@@ -14,9 +14,11 @@ std::vector<int> parseClause(const std::string &);
 void addVars(std::set<int> &, const std::vector<int> &);
 bool badClause(const std::vector<int> &);
 bool invalidAssignment(const std::vector<std::vector<int> >&, const std::map<int,bool> &);
-bool invalidClause(const std::vector<int> &,const std::map<int,bool>&);
-bool invalidVar(const int,const std::map<int,bool> &);
+bool validClause(const std::vector<int> &,const std::map<int,bool>&);
+bool validVar(const int,const std::map<int,bool> &);
 void printAssignments(const std::map<int,bool> &);
+void dumpVector(const std::vector<int> &);
+
 
 inline bool isNum(char c) {
 	return (c >= '0' && c <= '9');
@@ -48,7 +50,7 @@ int main(int argc, char * argv[]) {
 					break;
 				case 3: std::cout << "Error: Invalid line in file" << std::endl;
 					break;
-				case 4: std::cout << "UNSAT" << std::endl;	// This is tricky, but basically if any one clause
+				case 4: std::cout << "!!UNSAT" << std::endl;	// This is tricky, but basically if any one clause
 					break;					// can't be sat, then it can just jump to unsat.
 				default: std::cout << "Error: no " << e << std::endl;
 			}
@@ -64,6 +66,7 @@ int main(int argc, char * argv[]) {
 bool dpll(char *file_name) {
 	auto parsedClause = parse(file_name);
 	std::vector<std::vector<int>> clauses = parsedClause.first;
+	if (clauses.empty()) return true;
 	std::sort(clauses.begin(), clauses.end(),
 			[](std::vector<int> a, std::vector<int> b) -> bool { return a.size() > b.size();}); // Sort by size
 	std::set<int> variables = parsedClause.second;
@@ -73,6 +76,8 @@ bool dpll(char *file_name) {
 }
 
 bool dpllInner(const std::vector<std::vector<int>> &formula, std::set<int> unassigned, std::map<int,bool> assigned) {
+	//std::cout << "Dump In vec";
+	//dumpVector(formula[0]);
 	if (unassigned.empty()) {
 		bool out = !invalidAssignment(formula, assigned);
 		if (out && DEBUG_DPLL) {
@@ -108,12 +113,17 @@ std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
 				// Description, but our method of parsing does not require us to know this in advance
 			} else if ((isNum(l[0]) || l[0] == '-' )) { // parse each clause
 				clauses.push_back(parseClause(l));
-				addVars(vars,clauses.back()); // add it to the set for BCP assignment
+				if (clauses.back().empty()) { 
+					clauses.pop_back();
+				} else {
+					addVars(vars,clauses.back()); // add it to the set for BCP assignment
+				}
 			} else {
 				if (DEBUG_PARSE) std::cout << "Invalid line from the start";
 				throw 3;
 			}
 		}
+		if (DEBUG_PARSE) std::cout << "Returning from scope with size: " << clauses.size() << std::endl;
 		return {clauses, vars};
 	} else { // File can't open error
 		throw 2;
@@ -153,7 +163,7 @@ std::vector<int> parseClause(const std::string &s) {
 		if (std::stoi(s.substr(idx,offset)) == 0) {
 			std::sort(	clause.begin(),clause.end(),
 					[](int a,int b) -> bool { return a > b;}); // Sort by magnitude
-			if (badClause(clause)) throw 4;
+			if (badClause(clause)) return{};
 			return clause;
 		}
 		clause.push_back(std::stoi(s.substr(idx,offset)));
@@ -161,7 +171,7 @@ std::vector<int> parseClause(const std::string &s) {
 	}
 	std::sort(	clause.begin(),clause.end(),
 			[](int a,int b) -> bool { return a > b;}); 
-	if (badClause(clause)) throw 4;
+	if (badClause(clause)) return {};
 	return clause;	
 }
 
@@ -174,6 +184,13 @@ void addVars(std::set<int> &vars, const std::vector<int> &clause) {
 }
 
 bool badClause(const std::vector<int> &clause) { // This checks for contradictions in each local clause
+	if (DEBUG_PARSE) {
+		std::cout << "Parsing clause : ";
+		for (const int i : clause) {
+			std::cout << i << ",";
+		}
+		std::cout << "\n";
+	}
 	std::set<int> absNums;
 	std::set<int> nums;
 	for (const int i : clause) {
@@ -189,22 +206,22 @@ bool badClause(const std::vector<int> &clause) { // This checks for contradictio
 
 bool invalidAssignment(const std::vector<std::vector<int>> &cnf, const std::map<int,bool> &assignments) {
 	for (const std::vector<int> clause: cnf) {
-		if (invalidClause(clause,assignments)) return true; // If any clause is invalid, the whole formula is
+		if (!validClause(clause,assignments)) return true; // If any clause is invalid, the whole formula is
 	}
 	return false;
 }
 
-bool invalidClause(const std::vector<int> &clause, const std::map<int,bool> &assignments) {
+bool validClause(const std::vector<int> &clause, const std::map<int,bool> &assignments) {
 	for (const int i : clause) {
-		if (!invalidVar(i,assignments)) return false; // if one assignment is valid, the whole clause is
+		if (validVar(i,assignments)) return true; // if one assignment is valid, the whole clause is
 	}
-	return true;
+	return false;
 }
 
-bool invalidVar(const int i, const std::map<int,bool> &assignments) {
-	if (!assignments.count(abs(i))) return false; // unassigned can still be tru
-	if ((assignments.find(i)->second == true && (i > 0)) || (i < 0))  return false;
-	return true;
+bool validVar(const int i, const std::map<int,bool> &assignments) {
+	if (!assignments.count(abs(i))) return true; // unassigned can still be tru
+	bool assn = assignments.find(abs(i))->second;
+	return (( i > 0 && assn == true) || (i < 0 && assn == false));
 }
 
 void printAssignments(const std::map<int,bool> &dict) {
@@ -215,3 +232,11 @@ void printAssignments(const std::map<int,bool> &dict) {
 	std::cout << "\n";
 	return;
 }
+
+void dumpVector(const std::vector<int> &vec) {
+	std::cout << "Vec: ";
+	for (const int i : vec) {
+		std::cout << i << " ";
+	}
+	std::cout << "\n";
+}	

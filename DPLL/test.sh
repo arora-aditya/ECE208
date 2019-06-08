@@ -2,8 +2,8 @@
 
 for filename in test/*.cnf
 	do
-	echo "Testing $filename ..."
-	./dpll.o $filename
+	test_out="$(./dpll.o $filename)"
+	echo "Testing $filename ...  $test_out"
 done
 
 

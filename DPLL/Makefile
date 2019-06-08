@@ -11,6 +11,9 @@ build:
 .PHONY: test
 test: build
 	./test.sh		
+.PHONY: test_one
+test_one: build
+	./dpll.o test/test1.cnf
 
 .PHONY: clean
 clean: 
