@@ -5,6 +5,8 @@
 #include <set>
 #include <map>
 
+#define DEBUG_DPLL false
+#define DEBUG_PARSE false
 bool dpll(char*);
 bool dpllInner(const std::vector<std::vector<int>> &,std::set<int>,std::map<int,bool>);
 std::pair<std::vector<std::vector<int> >,std::set<int> > parse(char*);
@@ -14,6 +16,7 @@ bool badClause(const std::vector<int> &);
 bool invalidAssignment(const std::vector<std::vector<int> >&, const std::map<int,bool> &);
 bool invalidClause(const std::vector<int> &,const std::map<int,bool>&);
 bool invalidVar(const int,const std::map<int,bool> &);
+void printAssignments(const std::map<int,bool> &);
 
 inline bool isNum(char c) {
 	return (c >= '0' && c <= '9');
@@ -50,10 +53,10 @@ int main(int argc, char * argv[]) {
 				default: std::cout << "Error: no " << e << std::endl;
 			}
 			return 1;
-		} catch (...) {	
+		} /*catch (...) {	
 			std::cout << "ERROR" << std::endl;
 			return 1;
-		}
+		}*/
 	}
 	return 0;
 }
@@ -64,17 +67,23 @@ bool dpll(char *file_name) {
 	std::sort(clauses.begin(), clauses.end(),
 			[](std::vector<int> a, std::vector<int> b) -> bool { return a.size() > b.size();}); // Sort by size
 	std::set<int> variables = parsedClause.second;
+	if (DEBUG_PARSE) std::cout << "Handling : " << clauses.size() << "clauses with " << variables.size() << " variables\n";
 	std::map<int,bool> dict;
 	return dpllInner(clauses,variables,dict);
 }
 
 bool dpllInner(const std::vector<std::vector<int>> &formula, std::set<int> unassigned, std::map<int,bool> assigned) {
 	if (unassigned.empty()) {
-		return invalidAssignment(formula, assigned);
+		bool out = !invalidAssignment(formula, assigned);
+		if (out && DEBUG_DPLL) {
+			printAssignments(assigned);
+		}
+		return out;
 	}
 	else if (invalidAssignment(formula,assigned)) return false;
 	int var = (*unassigned.begin());
 	unassigned.erase(var);
+	//if (DEBUG_DPLL) std::cout << "Took var out of clause: " << var << "\n";
 	assigned[var] = true;
 	if (dpllInner(formula,unassigned,assigned)) return true;
 	assigned[var] = false;
@@ -101,6 +110,7 @@ std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
 				clauses.push_back(parseClause(l));
 				addVars(vars,clauses.back()); // add it to the set for BCP assignment
 			} else {
+				if (DEBUG_PARSE) std::cout << "Invalid line from the start";
 				throw 3;
 			}
 		}
@@ -115,28 +125,39 @@ std::vector<int> parseClause(const std::string &s) {
 	if (s.back() != '0') throw 3;
 	std::vector<int> clause;
 	unsigned int idx, offset;
+	idx = 0;
 	while (idx < s.size()) {
-		if (! ( isNum(s[idx]) || s[idx] == '-')) { // parse whitespace
-			if (s[idx] != ' ') throw 3;
+		while (! ( isNum(s[idx]) || s[idx] == '-')) { // parse whitespace
+			if (s[idx] != ' ') {
+				if (DEBUG_PARSE) std::cout << "Invalid whitespace while moving iterator";
+				throw 3;
+			}
 			idx++;
-		} else {
-			offset = 0;
-			if (s[idx] == '-') {
-				if (!isNum(s[idx+1])) throw 3; // Negative with no digit following it
-				offset += 1;
-			}
-			while (idx+offset < s.size() && isNum(s[idx+offset])) {
-				offset += 1;
-			}
-			if (s[idx+offset] != ' ') throw 3; // Non space seperator
-			if (std::stoi(s.substr(idx,offset-1)) == 0) {
-				std::sort(	clause.begin(),clause.end(),
-						[](int a,int b) -> bool { return a > b;}); // Sort by magnitude
-				if (badClause(clause)) throw 4;
-				return clause;
-			}
-			clause.push_back(std::stoi(s.substr(idx,offset-1)));
 		}
+		offset = 0;
+		if (s[idx] == '-') {	
+			if (!isNum(s[idx+1])) {	
+				if (DEBUG_PARSE) std::cout << "No characters after a negative sign";
+				throw 3; // Negative with no digit following it
+			}
+			offset += 1;
+		}
+		while (idx+offset < s.size() && isNum(s[idx+offset])) {
+			offset += 1;
+		}
+		if (s[idx+offset] != ' ' && idx+offset < s.size())  {
+			if (DEBUG_PARSE) std::cout << "Invalid whitespace when adjusting offset";
+			throw 3; // Non space seperator
+		}
+		if (DEBUG_PARSE) std::cout << "Trying to convert to int: " << s.substr(idx,offset) << "\n";
+		if (std::stoi(s.substr(idx,offset)) == 0) {
+			std::sort(	clause.begin(),clause.end(),
+					[](int a,int b) -> bool { return a > b;}); // Sort by magnitude
+			if (badClause(clause)) throw 4;
+			return clause;
+		}
+		clause.push_back(std::stoi(s.substr(idx,offset)));
+		idx = idx+offset+1;
 	}
 	std::sort(	clause.begin(),clause.end(),
 			[](int a,int b) -> bool { return a > b;}); 
@@ -146,8 +167,10 @@ std::vector<int> parseClause(const std::string &s) {
 
 void addVars(std::set<int> &vars, const std::vector<int> &clause) {
 	for (const int i : clause) {
+		if (DEBUG_PARSE) std::cout << "Adding : " << abs(i) << "\n";
 		vars.insert(abs(i));
-	}	
+	}
+	return;	
 }
 
 bool badClause(const std::vector<int> &clause) { // This checks for contradictions in each local clause
@@ -179,7 +202,16 @@ bool invalidClause(const std::vector<int> &clause, const std::map<int,bool> &ass
 }
 
 bool invalidVar(const int i, const std::map<int,bool> &assignments) {
-	if (!assignments.count(i)) return false; // unassigned can still be true
-	if (assignments.find(i)->second == true)  return false;
+	if (!assignments.count(abs(i))) return false; // unassigned can still be tru
+	if ((assignments.find(i)->second == true && (i > 0)) || (i < 0))  return false;
 	return true;
+}
+
+void printAssignments(const std::map<int,bool> &dict) {
+	std::cout << "Assignments are :\n";
+	for (auto it = dict.begin(); it != dict.end(); it++) {
+		std::cout << it->first << " -> " << it->second << ",";
+	}
+	std::cout << "\n";
+	return;
 }

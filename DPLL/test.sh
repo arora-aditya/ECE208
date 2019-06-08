@@ -1,9 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 
-test_out=$(./dpll.o cnf_first.txt)
-if [ "$test_out" = "SAT" ]; then
-	echo "Test successful"
-else
-	echo "Error: Test Output:"
-	echo $test_out
-fi
+for filename in test/*.cnf
+	do
+	echo "Testing $filename ..."
+	./dpll.o $filename
+done
+
+
+
+#test_out=$(./dpll.o cnf_first.txt)
+#if [ "$test_out" = "SAT" ]; then
+#	echo "Test successful"
+#else
+#	echo "Error: Test Output:"
+#	echo $test_out
+#fi

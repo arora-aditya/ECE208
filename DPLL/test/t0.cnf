@@ -1,0 +1,5 @@
+c  cnf_first.txt
+c
+p cnf 4 2
+-4 2 -1 0
+3 -2 -1 0
