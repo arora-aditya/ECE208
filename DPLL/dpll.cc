@@ -30,15 +30,13 @@ int main(int argc, char * argv[]) {
 					break;
 				case 3: std::cout << "Error: Invalid line in file" << std::endl;
 					break;
-				case 4: std::cout << "!!UNSAT" << std::endl;	// This is tricky, but basically if any one clause
-					break;					// can't be sat, then it can just jump to unsat.
 				default: std::cout << "Error: no " << e << std::endl;
 			}
 			return 1;
-		} /*catch (...) {	
+		} catch (...) {	
 			std::cout << "ERROR" << std::endl;
 			return 1;
-		}*/
+		}
 	}
 	return 0;
 }
