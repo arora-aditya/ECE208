@@ -3,10 +3,10 @@ STD = -std=c++14
 OUTPUT = -o dpll.o
 
 release:
-	g++ dpll.cpp -O3 $(STD) $(OUTPUT)
+	g++ dpll.cc -O3 $(STD) $(OUTPUT)
 
 build:
-	g++ dpll.cpp $(STD) $(WARNINGS) $(OUTPUT)
+	g++ dpll.cc $(STD) $(WARNINGS) $(OUTPUT)
 
 .PHONY: test
 test: build
