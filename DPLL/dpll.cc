@@ -30,6 +30,10 @@ int main(int argc, char * argv[]) {
 					break;
 				case 3: std::cout << "Error: Invalid line in file" << std::endl;
 					break;
+				case 4: std::cout << "Error: File missing header" << std::endl;
+					break;
+				case 5: std::cout << "UNSAT" << std::endl;
+					break;
 				default: std::cout << "Error: no " << e << std::endl;
 			}
 			return 1;
@@ -78,6 +82,8 @@ std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
 	}
 	std::ifstream file(file_name); // Open file from name
 	if (file.is_open()) {
+		bool headerFound = false;
+		bool clauseFound = false;
 		std::vector<std::vector<int>> clauses; 
 		std::set<int> vars;
 		std::string l;
@@ -85,8 +91,11 @@ std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
 			if (l[0] == 'c') {
 				// Comment Line, do nothing
 			} else if (l[0] == 'p') {
+				headerFound = true;
 				// Description, but our method of parsing does not require us to know this in advance
 			} else if ((isNum(l[0]) || l[0] == '-' )) { // This would indicate it's a clause line
+				clauseFound = true;
+				if (headerFound == false) { throw 4; }
 				clauses.push_back(parseClause(l)); // This is a SC hack - if a clause is valid we autosimplify it
 				if (clauses.back().empty()) { clauses.pop_back(); }
 			 	else { addVars(vars,clauses.back()); } // Otherwise add the variables to the set
@@ -96,6 +105,7 @@ std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
 			}
 		}
 		if (DEBUG_PARSE) std::cout << "Returning from scope with size: " << clauses.size() << std::endl;
+		if (clauseFound == false) { throw 5; } 
 		return {clauses, vars};
 	} else { // File can't open error
 		throw 2;
