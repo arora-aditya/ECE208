@@ -15,7 +15,7 @@ if __name__ == "__main__":
 			var = randint(-10,10)
 		fp.write(str(var))
 		clauseLength = clauseLength-1
-		if (clauseLength > 1): 
+		if (clauseLength > 0): 
 			operator = randint(0,1)
 			if (operator == 0) : 
 				fp.write(".")
