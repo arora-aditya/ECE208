@@ -8,14 +8,18 @@ if __name__ == "__main__":
 		count = int(sys.argv[1])
 	else:
 		count = 1
+	if len(sys.argv) > 2:
+		start = int(sys.argv[2])
+	else:
+		start = 0
 	while(count):
-		file_name = "test_case" + str(count) + ".nnf"
+		file_name = "test_case" + str(start+count) + ".nnf"
 		fp = open(file_name, "w+")
 		clauseLength = randint(5,30)
 		while (clauseLength > 0):
-			var = randint(-10,10)
+			var = randint(-15,15)
 			while (var == 0) :
-				var = randint(-10,10)
+				var = randint(-15,15)
 			fp.write(str(var))
 			clauseLength = clauseLength-1
 			if (clauseLength > 0):
@@ -24,4 +28,5 @@ if __name__ == "__main__":
 					fp.write(".")
 				else :
 					fp.write("+")
+		fp.write(' 0')
 		count -= 1
