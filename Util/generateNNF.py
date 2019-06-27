@@ -15,9 +15,9 @@ if __name__ == "__main__":
 	while(count):
 		file_name = "test_case" + str(start+count) + ".nnf"
 		fp = open(file_name, "w+")
-		clauseLength = randint(5,30)
+		clauseLength = randint(5,100)
 		while (clauseLength > 0):
-			var = randint(-15,15)
+			var = randint(-50,50)
 			while (var == 0) :
 				var = randint(-15,15)
 			fp.write(str(var))
