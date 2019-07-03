@@ -1,0 +1,24 @@
+Error: memory error: out of bound pointer
+File: ../../src/paste.c
+Line: 90
+assembly.ll line: 7573
+Stack: 
+	#000007573 in collapse_escapes (strptr) at ../../src/paste.c:90
+	#100003229 in __klee_posix_wrapped_main (argc=2, argv=88186240) at ../../src/paste.c:484
+	#200002235 in __user_main (argcPtr=15, argvPtr=51356000) at /root/Klee/klee/runtime/POSIX/klee_init_env.c:243
+	#300000374 in __uClibc_main (argc=15, argv=51356000) at libc/misc/internals/__uClibc_main.c:401
+	#400000463 in main (=15, =51356000)
+Info: 
+	address: (Add w64 9
+          (Select w64 (Eq 0
+                          (Read w8 (Extract w32 0 (Add w64 2
+                                                           N0:(ZExt w64 (Eq 45 (Read w8 1 arg00)))))
+                                   [10=0] @ arg00))
+                      87224544
+                      (Add w64 84618802 N0)))
+	example: 84618811
+	range: [84618811, 84618811]
+	next: object at 87223472 of size 3
+		MO5[3] allocated at main():  tail call fastcc void @__uClibc_main(i32 %0, i8** %1)
+	prev: object at 84618800 of size 11
+		MO1569[11] allocated at __get_sym_str():  %3 = tail call noalias i8* @malloc(i64 %2) #9, !dbg !5455
