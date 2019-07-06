@@ -1,0 +1,13 @@
+KLEE: WARNING: executable has module level assembly (ignoring)
+KLEE: WARNING ONCE: calling external: syscall(16, 0, 21505, 87130464) at /root/Klee/klee/runtime/POSIX/fd.c:990 10
+KLEE: WARNING ONCE: Alignment of memory from call "malloc" is not modelled. Using alignment of 8.
+KLEE: WARNING ONCE: Alignment of memory from call "calloc" is not modelled. Using alignment of 8.
+KLEE: WARNING ONCE: Alignment of memory from call "realloc" is not modelled. Using alignment of 8.
+KLEE: WARNING ONCE: calling external: vprintf(87109952, 88354976) at libc/stdio/fprintf.c:17 6
+KLEE: WARNING ONCE: calling close_stdout with extra arguments.
+KLEE: WARNING ONCE: ioctl: (TCGETS) symbolic file, incomplete model
+KLEE: WARNING ONCE: calling external: printf(72254080, 83877152, 86965496, 128) at ../../src/md5sum.c:161 2
+KLEE: WARNING ONCE: skipping fork (memory cap exceeded)
+KLEE: WARNING: killing 8208 states (over memory cap)
+KLEE: WARNING: killing 6886 states (over memory cap)
+KLEE: WARNING: killing 5761 states (over memory cap)

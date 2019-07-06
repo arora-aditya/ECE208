@@ -1,0 +1,24 @@
+/root/Klee/klee_build_dir/bin/klee --libc=uclibc --posix-runtime --max-memory=500 --disable-inlining --optimize --warnings-only-to-file=true --only-output-states-covering-new=true --use-forked-solver --max-instruction-time=30 --max-time=3600 --search=random-path --search=nurs:covnew --search=random-path --search=nurs:covnew ./md5sum.bc --sym-args 0 1 10 --sym-args 0 2 2 --sym-files 1 8 --sym-stdin 8 --sym-stdout
+PID: 21533
+Using monotonic steady clock with 1/1000000000s resolution
+Started: 2019-07-06 21:47:19
+BEGIN searcher description
+<InterleavedSearcher> containing 4 searchers:
+RandomPathSearcher
+WeightedRandomSearcher::CoveringNew
+RandomPathSearcher
+WeightedRandomSearcher::CoveringNew
+</InterleavedSearcher>
+END searcher description
+Finished: 2019-07-06 22:47:27
+Elapsed: 01:00:08
+KLEE: done: explored paths = 55974
+KLEE: done: avg. constructs per query = 966
+KLEE: done: total queries = 16100
+KLEE: done: valid queries = 8788
+KLEE: done: invalid queries = 7312
+KLEE: done: query cex = 16100
+
+KLEE: done: total instructions = 77333898
+KLEE: done: completed paths = 55974
+KLEE: done: generated tests = 51

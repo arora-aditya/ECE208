@@ -1,0 +1,5 @@
+KLEE: Using STP solver backend
+KLEE: ERROR: ../../lib/xmalloc.c:49: concretized symbolic size
+KLEE: NOTE: now ignoring this error at this location
+KLEE: ERROR: ../../lib/quotearg.c:248: memory error: out of bound pointer
+KLEE: NOTE: now ignoring this error at this location

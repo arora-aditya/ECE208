@@ -1,4 +1,4 @@
-# Tutorial 3
+# Tutorial 2
 
 - Teaches about how to add timeouts to the execution of `klee`
   - `-max-time=seconds`: Halt execution after the given number of seconds.

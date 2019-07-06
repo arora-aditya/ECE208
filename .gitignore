@@ -166,3 +166,4 @@ dmypy.json
 # Klee
 Docker.raw
 klee_alias_ece.sh
+klee-out-*

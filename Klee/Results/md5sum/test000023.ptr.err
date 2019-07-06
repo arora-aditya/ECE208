@@ -1,0 +1,18 @@
+Error: memory error: out of bound pointer
+File: ../../src/md5sum.c
+Line: 213
+assembly.ll line: 8291
+Stack: 
+	#000008291 in bsd_split_3 (s=93450437, s_len=0, hex_digest=101206824, file_name=101209144) at ../../src/md5sum.c:213
+	#100008157 in split_3 (s=93450432, s_len=5, hex_digest=101206824, binary=104616392, file_name=101209144) at ../../src/md5sum.c:259
+	#200007851 in digest_check (checkfile_name=86965768) at ../../src/md5sum.c:471
+	#300003504 in __klee_posix_wrapped_main (argc=2, argv=87751104) at ../../src/md5sum.c:667
+	#400002335 in __user_main (argcPtr=15, argvPtr=49566176) at /root/Klee/klee/runtime/POSIX/klee_init_env.c:243
+	#500000403 in __uClibc_main (argc=15, argv=49566176) at libc/misc/internals/__uClibc_main.c:401
+	#600000492 in main (=15, =49566176)
+Info: 
+	address: 93450431
+	next: object at 93450432 of size 64
+		MO123447[64] allocated at getdelim():  %17 = tail call noalias i8* @realloc(i8* %buf.0, i64 %16) #23, !dbg !5886
+	prev: object at 88190464 of size 6496
+		MO33469[6496] allocated at init_cur_collate():  %75 = tail call noalias i8* @calloc(i64 %74, i64 2) #23, !dbg !5928
