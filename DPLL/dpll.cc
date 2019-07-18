@@ -114,7 +114,10 @@ std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
 }
 
 std::vector<int> parseClause(const std::string &s) {
-	if (s.back() != '0') throw 3; // all valid clauses _must_ end in a 0
+	if (s.back() != '0') {
+		if (DEBUG_PARSE) std::cout << "Clause line" << s << " not ending in 0";
+		throw 3; // all valid clauses _must_ end in a 0
+	}
 	std::vector<int> clause;
 	unsigned int idx, offset;
 	idx = 0;
@@ -154,6 +157,21 @@ std::vector<int> parseClause(const std::string &s) {
 	if (validClause(clause)) return {};
 	return clause;	
 }
+
+bool propogateLogic(std::map<int,bool> &assignments, const std::vector<std::vector<int>> &clauses) {
+	assignments.clear();
+	return true;
+	std::set<int> pureLiterals;
+	std::set<int> impureLiterals;
+	for (const std::vector<int> &v : clauses) {
+		if (v.size() == 1) {
+			
+		} else {
+
+		}
+	}
+}
+
 
 void addVars(std::set<int> &vars, const std::vector<int> &clause) {
 	for (const int i : clause) {
@@ -204,6 +222,14 @@ bool validVar(const int i, const std::map<int,bool> &assignments) {
 	return (( i > 0 && assn == true) || (i < 0 && assn == false));
 }
 
+
+
+/* 
+ * Debug Functions
+ * Here be dragons
+ * 
+ * This code is not relevant for solving but were used to debug previously
+ */
 void printAssignments(const std::map<int,bool> &dict) {
 	assert((DEBUG_DPLL || DEBUG_PARSE) && "Debug call to printAssignments");
 	std::cout << "Assignments are :\n";
