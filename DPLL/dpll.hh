@@ -48,6 +48,16 @@ std::pair<std::vector<std::vector<int> >,std::set<int> > parse(char* file_path);
  */
 std::vector<int> parseClause(const std::string &line);
 
+/*
+ * propogateLogic() : will do PLP and UCP in the first pass.
+ * 
+ * assignments: this will be emptied and replaced with the new assignments
+ * clauses: reference to the actual clauses we need
+ *
+ * returns true on success, false if conflict detected
+ */
+bool propogateLogic(std::map<int,bool> &assignments, const std::vector<std::vector<int>> &clauses); 
+
 /* 
  * addVars() : adds vars to set
  * 

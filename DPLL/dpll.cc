@@ -52,7 +52,9 @@ bool dpll(char *file_name) {
 	if (clauses.empty()) return true;
 	std::sort(clauses.begin(), clauses.end(),VEC_COMP); // Sort by size
 	if (DEBUG_PARSE) { std::cout << "Handling : " << clauses.size() << "clauses with " << variables.size() << " variables\n"; }
-	return dpllInner(clauses,variables,{});
+	std::map<int,bool> assignments;
+	if (!propogateLogic(assignments,clauses)) return false;
+	return dpllInner(clauses,variables,assignments);
 }
 
 bool dpllInner(const std::vector<std::vector<int>> &formula, std::set<int> unassigned, std::map<int,bool> assigned) {
@@ -158,6 +160,18 @@ std::vector<int> parseClause(const std::string &s) {
 	return clause;	
 }
 
+void updatePLP(std::set<int> &pureLiterals, std::set<int> &impureLiterals, const int i) {
+	if (!impureLiterals.count(i)) {
+		if (pureLiterals.count(i)) {
+			pureLiterals.erase(-i);
+			impureLiterals.insert(-i);
+			impureLiterals.insert(i);
+		} else {
+			pureLiterals.insert(i);
+		}
+	}
+}
+
 bool propogateLogic(std::map<int,bool> &assignments, const std::vector<std::vector<int>> &clauses) {
 	assignments.clear();
 	return true;
@@ -165,11 +179,34 @@ bool propogateLogic(std::map<int,bool> &assignments, const std::vector<std::vect
 	std::set<int> impureLiterals;
 	for (const std::vector<int> &v : clauses) {
 		if (v.size() == 1) {
-			
+			if (assignments.count(v.front())) {
+				if (v.front() < 0) {
+					if (assignments[-v.front()] == true) return false; 
+					updatePLP(pureLiterals,impureLiterals,v.front());
+				} else {
+					if (assignments[v.front()] == false) return false;
+					updatePLP(pureLiterals,impureLiterals,v.front());
+				}
+			} else {
+				if (v.front() < 0) { assignments[-v.front()] = false; }
+				else { assignments[v.front()] = true; }
+				updatePLP(pureLiterals,impureLiterals,v.front());
+			}
 		} else {
-
+			for (auto i : v) {
+				updatePLP(pureLiterals,impureLiterals,i);
+			}
 		}
 	}
+	for (auto i : pureLiterals) {
+		if (assignments.count(i) || assignments.count(-i)) {
+			if ((i < 0 && assignments[-i] == true) || (i > 0 && assignments[i] == false)) { return false; }
+		} else {
+			if (i < 0) { assignments[-i] = false; }
+			else { assignments[i] = true; }
+		}
+	}
+	return true;
 }
 
 
