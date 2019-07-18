@@ -1,6 +1,7 @@
 # Graph Cover
 
 [first useful link](http://vnsgu.ac.in/dept/publication/vnsgujst41july2015/25.pdf)
+
 [slide 30](https://people.cs.umass.edu/~sheldon/teaching/mhc/cs312/2013sp/Slides/Slides22%20-%20Polynomial%20Reducibility.pdf)
 
 
