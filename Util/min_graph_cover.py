@@ -1,4 +1,5 @@
 import itertools
+import sys
 
 class Vertex_Cover:
 
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     #        [1, 0, 0, 1, 1],
     #        [1, 0, 1, 0, 1],
     #        [1, 1, 1, 1, 0]]
-    graph = readIntoAM(argv[1])
+    graph = readIntoAM(sys.argv[1])
     ins = Vertex_Cover(graph)
 
     print (Vertex_Cover.vertex_cover_naive(ins))
