@@ -45,8 +45,8 @@ int main(int argc, char * argv[]) {
 	return 0;
 }
 
-bool dpll(char *file_name) {
-	auto parsedClause = parse(file_name);
+bool dpll(char *file_path) {
+	auto parsedClause = parse(file_path);
 	auto clauses = parsedClause.first;
 	auto variables = parsedClause.second;
 	if (clauses.empty()) return true;
@@ -57,13 +57,23 @@ bool dpll(char *file_name) {
 	return dpllInner(clauses,variables,assignments);
 }
 
+bool dpllOpt(char *file_path, std::map<int,bool> *opt_assignment) {
+	auto parsedClause = parse(file_path);
+	auto clauses = parsedClause.first;
+	auto variables = parsedClause.second;
+	if (clauses.empty()) return true;
+	std::sort(clauses.begin(), clauses.end(),VEC_COMP); // Sort by size
+	if (DEBUG_PARSE) { std::cout << "Handling : " << clauses.size() << "clauses with " << variables.size() << " variables\n"; }
+	std::map<int,bool> assignments;
+	if (!propogateLogic(assignments,clauses)) return false;
+	return dpllInnerOpt(clauses,variables,assignments,opt_assignment);
+}
+
 bool dpllInner(const std::vector<std::vector<int>> &formula, std::set<int> unassigned, std::map<int,bool> assigned) {
-	if (unassigned.empty()) { // If there's no variables left to assign, check for conflicts
-		bool out = !invalidAssignment(formula, assigned);
-		if (out && DEBUG_DPLL) { printAssignments(assigned);}
-		return out;
+	if (invalidAssignment(formula,assigned)) return false; // If conflict, return false
+	else if (unassigned.empty()) { // If there's no variables left to assign, check for conflicts
+		return true;
 	}
-	else if (invalidAssignment(formula,assigned)) return false; // if there's a conflict, return false
 	
 	int var = (*unassigned.begin());
 	unassigned.erase(var); // remove from set once assigning
@@ -73,6 +83,25 @@ bool dpllInner(const std::vector<std::vector<int>> &formula, std::set<int> unass
 
 	assigned[var] = false;
 	if (dpllInner(formula,unassigned,assigned)) return true;
+
+	return false; // if neither option can satisfy, return false
+}
+
+bool dpllInnerOpt(const std::vector<std::vector<int>> &formula, std::set<int> unassigned, std::map<int,bool> assigned, std::map<int,bool> *opt_assignment) {
+	if (invalidAssignment(formula,assigned)) return false; // If conflict, return false
+	else if (unassigned.empty()) { // If there's no variables left to assign, check for conflicts
+		if (opt_assignment != NULL) { *opt_assignment = std::move(assigned); }
+		return true;
+	}
+	
+	int var = (*unassigned.begin());
+	unassigned.erase(var); // remove from set once assigning
+
+	assigned[var] = true;
+	if (dpllInnerOpt(formula,unassigned,assigned,opt_assignment)) return true;
+
+	assigned[var] = false;
+	if (dpllInnerOpt(formula,unassigned,assigned,opt_assignment)) return true;
 
 	return false; // if neither option can satisfy, return false
 }
