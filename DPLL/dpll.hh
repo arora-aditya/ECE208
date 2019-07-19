@@ -17,6 +17,9 @@ inline T abs(T x) { return (x > 0) ? x : (-1)*x; }
  */
 bool dpll(char* file_path);
 
+// Can set pointer  for optional assignment 
+bool dpllOpt(char *file_path, std::map<int,bool> *opt_assignment);
+
 /*
  * dpllInner() : inner function running dpll routine
  *
@@ -27,6 +30,9 @@ bool dpll(char* file_path);
  * returns true if satisfiable from current assignment
  */
 bool dpllInner(const std::vector<std::vector<int>> &clauses, std::set<int> unassigned, std::map<int,bool> assigned);
+
+// Opt Assignment in case yo want to extract set of satisfying assignments
+bool dpllInner(const std::vector<std::vector<int>> &clauses, std::set<int> unassigned, std::map<int,bool> assigned, std::map<int,bool> *opt_assignment);
 
 /*
  * parse() : parses a file in DIMACs format
