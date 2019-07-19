@@ -32,7 +32,7 @@ bool dpllOpt(char *file_path, std::map<int,bool> *opt_assignment);
 bool dpllInner(const std::vector<std::vector<int>> &clauses, std::set<int> unassigned, std::map<int,bool> assigned);
 
 // Opt Assignment in case yo want to extract set of satisfying assignments
-bool dpllInner(const std::vector<std::vector<int>> &clauses, std::set<int> unassigned, std::map<int,bool> assigned, std::map<int,bool> *opt_assignment);
+bool dpllInnerOpt(const std::vector<std::vector<int>> &clauses, std::set<int> unassigned, std::map<int,bool> assigned, std::map<int,bool> *opt_assignment);
 
 /*
  * parse() : parses a file in DIMACs format
