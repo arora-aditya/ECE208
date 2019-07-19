@@ -167,3 +167,4 @@ dmypy.json
 Docker.raw
 klee_alias_ece.sh
 klee-out-*
+adjacency_matrices/

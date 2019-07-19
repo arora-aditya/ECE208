@@ -1,4 +1,4 @@
-from random import *
+from random import randint
 import sys
 #ext = randint(0,1111) # if you want this to be safe use something else
 ext = ""
