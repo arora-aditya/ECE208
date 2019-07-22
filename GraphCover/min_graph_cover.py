@@ -28,7 +28,7 @@ class Vertex_Cover:
                 minimum_vertex_cover = min(counter, minimum_vertex_cover)
 
         return minimum_vertex_cover
- 
+
 def readIntoAM(filename: str):
     am = []
     with open(filename) as f:
@@ -36,6 +36,9 @@ def readIntoAM(filename: str):
         for line in lines:
             line = list(map(int, line[:-1]))
             am.append(list(line))
+    for i in range(len(am)):
+        for j in range(i, len(am[i])):
+            am[i][j] = am[j][i]
     return am
 
 if __name__ == '__main__':
@@ -44,7 +47,11 @@ if __name__ == '__main__':
     #        [1, 0, 0, 1, 1],
     #        [1, 0, 1, 0, 1],
     #        [1, 1, 1, 1, 0]]
-    graph = readIntoAM(sys.argv[1])
-    ins = Vertex_Cover(graph)
-
-    print (Vertex_Cover.vertex_cover_naive(ins))
+    ans = []
+    for i in range(100):
+        filename =  f'adjacency_matrices_7/testcase_{i}.cov'
+        graph = readIntoAM(filename)
+        ins = Vertex_Cover(graph)
+        ans.append([f'testcase_{i}', Vertex_Cover.vertex_cover_naive(ins)])
+        print(f'{i}/100', end='\r')
+    print(ans)

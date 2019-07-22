@@ -168,3 +168,5 @@ Docker.raw
 klee_alias_ece.sh
 klee-out-*
 adjacency_matrices/
+adjacency_matrices_*
+output_cnf*
