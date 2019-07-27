@@ -3,6 +3,11 @@
 #include <map>
 #include <set>
 
+#define BCP_OK 0
+#define BCP_UNSAT 1
+#define BCP_SAT 2
+
+
 inline bool isNum(const char c) { return (c >= '0' && c <= '9'); }
 
 template<typename T> 
@@ -29,7 +34,7 @@ bool dpllOpt(char *file_path, std::map<int,bool> *opt_assignment);
  *
  * returns true if satisfiable from current assignment
  */
-bool dpllInner(const std::vector<std::vector<int>> &clauses, std::set<int> unassigned, std::map<int,bool> assigned);
+bool dpllInner(std::vector<std::vector<int>> clauses, std::set<int> unassigned, std::map<int,bool> assigned);
 
 // Opt Assignment in case yo want to extract set of satisfying assignments
 bool dpllInnerOpt(const std::vector<std::vector<int>> &clauses, std::set<int> unassigned, std::map<int,bool> assigned, std::map<int,bool> *opt_assignment);
@@ -55,7 +60,7 @@ std::pair<std::vector<std::vector<int> >,std::set<int> > parse(char* file_path);
 std::vector<int> parseClause(const std::string &line);
 
 /*
- * propogateLogic() : will do PLP and UCP in the first pass.
+ * propogateLogic() : will do PLP and BCP in the first pass.
  * 
  * assignments: this will be emptied and replaced with the new assignments
  * clauses: reference to the actual clauses we need
@@ -63,6 +68,17 @@ std::vector<int> parseClause(const std::string &line);
  * returns true on success, false if conflict detected
  */
 bool propogateLogic(std::map<int,bool> &assignments, const std::vector<std::vector<int>> &clauses); 
+
+/*
+ * doBCP(); do horrid PCP on formula and assignments, simplifying
+ * 
+ * formula: reference to the formula having BCP done on it
+ * assignments: all assignemnts
+ *
+ * returns BCP_OK, BCP_UNSAT or BCP_SAT, depending on results
+ */
+
+int doBCP(std::vector<std::vector<int>> &formula, std::map<int,bool> &assignments, std::set<int> &unassigned);
 
 /* 
  * addVars() : adds vars to set
@@ -101,6 +117,15 @@ bool invalidAssignment(const std::vector<std::vector<int>>&clauses, const std::m
  * returns true if at least one variable is not unsatisfied, false otherwise
  */
 bool validClause(const std::vector<int> &clause,const std::map<int,bool> &dict);
+
+/*
+ * hasEmptyClause(): returns if any clause is empty	
+ *
+ * clauses: the vector of all int clauses
+ *
+ * returns true if any nested vector is empty; false otherwise
+ */
+bool hasEmptyClause(const std::vector<std::vector<int>> &clauses);
 
 /* 
  * validVar(): returns if a variable has a valid assignment
