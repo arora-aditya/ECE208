@@ -133,7 +133,7 @@ bool dpllInnerOpt(const std::vector<std::vector<int>> &formula, std::set<int> un
 	return false; // if neither option can satisfy, return false
 }
 
-int doBCP(std::vector<std::vector<int>> &formula, std::map<int,bool> assigned, std::set<int> unassigned) {
+int doBCP(std::vector<std::vector<int>> &formula, std::map<int,bool> &assigned, std::set<int> &unassigned) {
 	/*
 	 * Note to future self: This actual implementation does nothing more than the bare minimum
 	 * The spec of implementing this could be done proplerly with a topological sort style implementation
