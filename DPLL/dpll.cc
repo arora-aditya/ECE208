@@ -6,7 +6,8 @@
 
 #define DEBUG_DPLL false
 #define DEBUG_PARSE false
-#define VEC_COMP [](std::vector<int> a, std::vector<int> b) -> bool { return a.size() > b.size(); }
+#define DO_UCP true
+#define VEC_COMP [](std::vector<int> a, std::vector<int> b) -> bool { return a.size() < b.size(); }
 #define ABS_INT_COMP [](int a, int b) -> bool { return abs(a) > abs(b); }
 
 int main(int argc, char * argv[]) {
@@ -34,6 +35,8 @@ int main(int argc, char * argv[]) {
 					break;
 				case 5: std::cout << "UNSAT" << std::endl;
 					break;
+				case 6: std::cout << "SAT" << std::endl;
+					break;
 				default: std::cout << "Error: no " << e << std::endl;
 			}
 			return 1;
@@ -49,11 +52,21 @@ bool dpll(char *file_path) {
 	auto parsedClause = parse(file_path);
 	auto clauses = parsedClause.first;
 	auto variables = parsedClause.second;
-	if (clauses.empty()) return true;
+	if (clauses.empty()) {
+		if (DEBUG_DPLL) { std::cout << "Clauses empty, returning early\n"; }
+		return false;
+	}
+	if (hasEmptyClause(clauses)) {
+		if (DEBUG_DPLL) { std::cout << "Clauses empty, returning early\n"; }
+		return false;
+	}
 	std::sort(clauses.begin(), clauses.end(),VEC_COMP); // Sort by size
 	if (DEBUG_PARSE) { std::cout << "Handling : " << clauses.size() << "clauses with " << variables.size() << " variables\n"; }
 	std::map<int,bool> assignments;
-	if (!propogateLogic(assignments,clauses)) return false;
+	if (!propogateLogic(assignments,clauses)) {
+		if (DEBUG_DPLL) { std::cout << "Logic propogation failed, returning early\n"; }
+		return false;
+	}
 	return dpllInner(clauses,variables,assignments);
 }
 
@@ -69,9 +82,23 @@ bool dpllOpt(char *file_path, std::map<int,bool> *opt_assignment) {
 	return dpllInnerOpt(clauses,variables,assignments,opt_assignment);
 }
 
-bool dpllInner(const std::vector<std::vector<int>> &formula, std::set<int> unassigned, std::map<int,bool> assigned) {
+bool dpllInner(std::vector<std::vector<int>> formula, std::set<int> unassigned, std::map<int,bool> assigned) {
+	if (DEBUG_DPLL) { printAssignments(assigned); }
 	if (invalidAssignment(formula,assigned)) return false; // If conflict, return false
-	else if (unassigned.empty()) { // If there's no variables left to assign, check for conflicts
+
+	int ret = doBCP(formula,assigned,unassigned); // even this signature is off - fix after demo
+	if (ret == BCP_UNSAT) {
+		if (DEBUG_DPLL) { std::cout << "Failed on BCP"; }
+		return false;
+	}
+	else if (ret == BCP_SAT) {
+		if (DEBUG_DPLL) { std::cout << "Succeeded from BCP"; }
+		return true;
+	}
+	assert(ret == BCP_OK && "Expecting BCP_OK");
+	if (invalidAssignment(formula,assigned)) {
+		return false;
+	} else if (unassigned.empty()) { // If there's no variables left to assign, check for conflicts
 		return true;
 	}
 	
@@ -104,6 +131,62 @@ bool dpllInnerOpt(const std::vector<std::vector<int>> &formula, std::set<int> un
 	if (dpllInnerOpt(formula,unassigned,assigned,opt_assignment)) return true;
 
 	return false; // if neither option can satisfy, return false
+}
+
+int doBCP(std::vector<std::vector<int>> &formula, std::map<int,bool> assigned, std::set<int> unassigned) {
+	/*
+	 * Note to future self: This actual implementation does nothing more than the bare minimum
+	 * The spec of implementing this could be done proplerly with a topological sort style implementation
+	 * Which seems like it'd be better. This is designed to be lazy
+ 	 */
+	int flag = 0;
+
+	/*
+	 * This block will simplify clauses and return on a fail
+ 	 */
+
+	auto formula_it = formula.begin();
+	while (formula_it != formula.end() && !formula.empty()) {
+		auto vec_it = formula_it->begin();
+		while (vec_it != formula_it->end() && !formula_it->empty()) {
+			int val = *vec_it; // Just to make it cleaner
+			if (assigned.count(abs(val))) {
+				if ((val > 0 && assigned[val] == true) || (val < 0 && assigned[-val] == false)) { 
+					formula.erase(formula_it);
+					if (formula.empty()) return BCP_SAT;
+					formula_it = formula.begin();
+					flag = 1;
+					break;
+				} else {
+					formula_it->erase(vec_it);
+					if (formula_it->empty()) return BCP_UNSAT;
+					vec_it = formula_it->begin();
+				}
+			} else {
+				vec_it++;
+			}	
+		}
+		if (flag == 1) {
+			flag = 0;
+		} else {
+			formula_it++;
+		}
+	}
+	std::sort(formula.begin(),formula.end(),VEC_COMP);
+	for (auto it = formula.begin(); it != formula.end() && it->size() < 2; it++) {
+		assert(!it->empty() && "Error, we didn't remove an empty vector");
+		assert(!assigned.count(abs(it->front())) && "Error, we didn't remove an assigned variable");
+		int val = it->front();
+		assert(val != 0 && "Error, 0 is not valid variable");
+		if (val > 0) {
+			assigned[val] = true;
+			unassigned.erase(val);
+		} else {
+			assigned[-val] = false;
+			unassigned.erase(-val);
+		}
+	}
+	return BCP_OK;
 }
 
 std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
@@ -140,7 +223,7 @@ std::pair<std::vector<std::vector<int>>, std::set<int>> parse(char *file_name) {
 		return {clauses, vars};
 	} else { // File can't open error
 		throw 2;
-		return {};
+		//return {};
 	}
 }
 
@@ -177,15 +260,15 @@ std::vector<int> parseClause(const std::string &s) {
 		}
 		if (DEBUG_PARSE) { std::cout << "Trying to convert to int: " << s.substr(idx,offset) << "\n"; }
 		if (std::stoi(s.substr(idx,offset)) == 0) { // If this is the end of the string, return
-			std::sort(	clause.begin(),clause.end(),ABS_INT_COMP); // Sort by magnitude
-			if (validClause(clause)) return{};
+			std::sort(clause.begin(),clause.end(),ABS_INT_COMP); // Sort by magnitude
+			if (validClause(clause)) throw 6; // Last minute hack - throwing  means sat
 			return clause;
 		}
 		clause.push_back(std::stoi(s.substr(idx,offset)));
 		idx = idx+offset+1;
 	}
 	std::sort(clause.begin(),clause.end(),ABS_INT_COMP); 
-	if (validClause(clause)) return {};
+	if (validClause(clause)) throw 6; // Last minute hack - if
 	return clause;	
 }
 
@@ -288,6 +371,10 @@ bool validVar(const int i, const std::map<int,bool> &assignments) {
 	return (( i > 0 && assn == true) || (i < 0 && assn == false));
 }
 
+bool hasEmptyClause(const std::vector<std::vector<int>> &clauses) {
+	for (auto v : clauses) { if (v.empty()) return true; }
+	return false;
+}
 
 
 /* 
