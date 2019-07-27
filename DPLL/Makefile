@@ -1,3 +1,5 @@
+lso := $(shell ls ../GraphCover/output_cnf/)
+
 WARNINGS = -Wall -Wextra
 STD = -std=c++14
 OUTPUT = dpll.o
@@ -25,3 +27,7 @@ clean: ## remove output files
 .PHONY: help
 help: ## probably the command you're looking for
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
+
+check_gc: ## check SAT solver == SAT on all graph cover output files
+	@sh gc.sh
+	@echo "\033[36mIf you don't see any output above you're good\033[0m";
