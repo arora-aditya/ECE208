@@ -13,9 +13,37 @@ A 3rd party, symbolic library was used to make the process of dealing with parse
 Our output was verified by using the libraries "equivalent" function to ensure that no error was made in our transformation process.
 
 ### DPLL
-// TODO
 
-Our output was verified by running it on CNF files found online, as well as Prof. Ward's CNF files from ECE108.
+Our output was verified by running it on CNF files found online, as well as Prof. Ward's CNF files from ECE108. Special shoutout to the weird makefile, but `make` should build it, with some sort of output. Largely speaking, the most important thing is that fatures were built to spec. 
+
+The parser will try to throw errors if it can find simple formatting errors instead of recovering. Most online sat solvers discovered as roughly as picky - they don't want to speculate on the intent of the user. It will be generous if it can with error messages. 
+
+Some critical assumptions made include an empty set is immedietely unsat, and an empty formula is also unsat. `dpllOpt()` is deprecated, and `dpll()` is what's used. The formula will also return without a full assignment if the current assignments can satisfy the formula.
+
+It passes variables by value recursively since formulas are modified on the fly. Poor allocator, but unfortunately that's not required in the spec, so we abused it to the best of our abilities.
+
+The actual code flow is:
+
+DPLL: 
+	1. parse clauses
+	2. if error return false/throw
+	3. sort formula by clause size (in non-decreasing order)  
+	4. else do PLP and BCP  
+	5. if error, return false;
+	6. return DPLL_Inner
+
+DPLL_Inner:
+	1. if conflict, return false
+	2. do BCP
+	3. if conflict, return false
+	4. if sat, return true
+	5. if all assigned, return true. This shouldn't actually happen but is retained for historic reasons
+	6. Choose some unassigned variable X. X = true.
+	7. If DPLL_Inner, return true
+	8. Else, X = false
+	9. If DPLL_INner, return true
+	10. else, return false.
+	
 
 ### Klee (Bugs in `coreutils`)
 The first few tutorials were really interesting, and taught me some really valuable lessons about the ways `klee` could be used.
