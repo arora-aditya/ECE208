@@ -6,6 +6,7 @@
 
 #define DEBUG_DPLL false
 #define DEBUG_PARSE false
+#define DEBUG_BCP false
 #define DO_UCP true
 #define VEC_COMP [](std::vector<int> a, std::vector<int> b) -> bool { return a.size() < b.size(); }
 #define ABS_INT_COMP [](int a, int b) -> bool { return abs(a) > abs(b); }
@@ -151,6 +152,7 @@ int doBCP(std::vector<std::vector<int>> &formula, std::map<int,bool> &assigned, 
 		while (vec_it != formula_it->end() && !formula_it->empty()) {
 			int val = *vec_it; // Just to make it cleaner
 			if (assigned.count(abs(val))) {
+				if (DEBUG_BCP) { std::cout << "Simplifying from: " << val << "\n"; }
 				if ((val > 0 && assigned[val] == true) || (val < 0 && assigned[-val] == false)) { 
 					formula.erase(formula_it);
 					if (formula.empty()) return BCP_SAT;
@@ -174,8 +176,14 @@ int doBCP(std::vector<std::vector<int>> &formula, std::map<int,bool> &assigned, 
 	}
 	std::sort(formula.begin(),formula.end(),VEC_COMP);
 	for (auto it = formula.begin(); it != formula.end() && it->size() < 2; it++) {
+		if (DEBUG_BCP) { std::cout << "Propogating : " << it->front() << "\n"; }
 		assert(!it->empty() && "Error, we didn't remove an empty vector");
-		assert(!assigned.count(abs(it->front())) && "Error, we didn't remove an assigned variable");
+		//assert(!assigned.count(abs(it->front())) && "Error, we didn't remove an assigned variable");
+		if (assigned.count(abs(it->front()))) {
+			if ((it->front() < 0 && assigned[-it->front()] == true) || (it->front() > 0 && assigned[it->front()] == false)) {
+				return BCP_UNSAT;
+			}
+		}
 		int val = it->front();
 		assert(val != 0 && "Error, 0 is not valid variable");
 		if (val > 0) {
