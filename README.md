@@ -5,6 +5,7 @@
 - DPLL
 - Klee (Bugs in `coreutils`)
 - Graph Vertex Cover to CNF
+  - also includes a secondary algorithm to cross-check our encoding
 
 ## Utils
 - our own `generateNNF.py` to generate random NNFs

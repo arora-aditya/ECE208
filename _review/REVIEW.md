@@ -93,7 +93,7 @@ Once the compilation was done, the actual "testing" of `coreutils` was actually 
 ## Encode Graph Vertex Cover to CNF
 This was the only problem that required some of our own thinking. After some discussion, the ripple adder solution was tried, but sadly we lacked enough context to be able to use the bits of our output and feed it into our comparator. An earlier version with this failed attempt is linked [here](https://github.com/arora-aditya/ECE208/blob/master/GraphCover/GraphCover_failed_adder_comparator.ipynb)
 
-In the end, we resorted to using an exponential ($n!$) growth algorithm by generating all the possible combinations of sum and simplifying to get our sum.All the requirements from the original problem are satisfied.
+In the end, we resorted to using an exponential ($n!$) growth algorithm by generating all the possible combinations of sum and simplifying to get our sum. All the requirements from the original problem are satisfied.
 
 The simplified result did reveal some insights on how we could optimize our algorithm to reduce time complexity, but the approach was not implemented due to lack of time.
 
