@@ -29,11 +29,19 @@ Our output was verified by using the libraries "equivalent" function to ensure t
 
 Our output was verified by running it on CNF files found online, as well as Prof. Ward's CNF files from ECE108. Special shoutout to the weird makefile, but `make` should build it, with some sort of output. Largely speaking, the most important thing is that fatures were built to spec.
 
-The parser will try to throw errors if it can find simple formatting errors instead of recovering. Most online sat solvers discovered as roughly as picky - they don't want to speculate on the intent of the user. It will be generous if it can with error messages.
+The parser will try to throw errors if it can find simple formatting errors instead of recovering. Most online sat solvers discovered as roughly as picky - they don't want to speculate on the intent of the user. It will be generous if it can with error messages. The only additional functionality supported was it can take arbitrarily large lists without validing the header line. This was an intentional design decision to allow for convenient test case generation (in case someone modified the test case by hand), as discussed in our presentation. In particular, it can return the following errors:
 
-Some critical assumptions made include an empty set is immedietely unsat, and an empty formula is also unsat. `dpllOpt()` is deprecated, and `dpll()` is what's used. The formula will also return without a full assignment if the current assignments can satisfy the formula.
+1. Bad File (can't open for some reason)  
+2. Missing Header (required for DIMACs format, but can be dodged simply by starting with a 'p')  
+3. Invalid Line Format (ie invalid character, doesn't end with a '0')
+
+Some critical assumptions made include an empty set is immedietely unsat, and an empty formula is also unsat. `dpllOpt()` is deprecated, and `dpll()` is what's used. The formula will also return without a full assignment if the current assignments can satisfy the formula. The formula is represented as a vector of vector (of integers). This does conform with the format. 
 
 It passes variables by value recursively since formulas are modified on the fly. Poor allocator, but unfortunately that's not required in the spec, so we abused it to the best of our abilities.
+
+BCP is implemented to run in linear time, and does physically mutate the formula (removing all satisfied clauses, and unsatisfiable variables). It can also return if the current assignment is satisfactory (pre-BCP), or conflicting, returning BCP_SAT, or BCP_UNSAT. BCP_UNSAT only means at a local scale of assignments it's unsat (and does not comment on formulas).
+
+Satisfying assignment is also run in linear time, and is run every instance of the call.
 
 The actual code flow is:
 
@@ -51,7 +59,7 @@ The actual code flow is:
 1. if conflict, return false
 2. do BCP
 3. if conflict, return false
-4. if sat, return true
+4. if satisfying assignment, return true
 5. if all assigned, return true. This shouldn't actually happen but is retained for historic reasons
 6. Choose some unassigned variable X. X = true.
 7. If DPLL_Inner, return true
@@ -59,7 +67,13 @@ The actual code flow is:
 9. If DPLL_Inner, return true
 10. else, return false.
 
+While in theory, the worst-case performance for DPLL is O(2^n) and worst-case space performance is O(n), the facile implementation is very reckless with runtimes and allocation. The worst-case performance for this method is O(n2^n) and worst-case space performance is O(n^2). This is because each of the O(n^2) searches runs in O(n) time and can add O(n) memory, resulting in all runtimes to be O(n) times the idealized form. 
+
+Ways to improve this algorithm would be to pass-by-reference, and keep changes local, resulting in O(n) space. It'd also be better to track each clause, to tell if there's a conflict in constant time. Though this will likely have a very large initial overhead, the asymptotics will be a lot more favorable. Overall however, this is correct and conforms to the specification applied. As such, we are happy with the correctness of our code.
+
 ---
+
+
 
 \newpage
 
