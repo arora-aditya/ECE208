@@ -21,6 +21,8 @@ A 3rd party, symbolic library was used to make the process of dealing with parse
 
 Our output was verified by using the libraries "equivalent" function to ensure that no error was made in our transformation process.
 
+As was required in the spec, the space complexity of Tseitin is linear for generating the equivalence clause. The actual space complexity of the program is $O(2^n)$ based on the number of clauses, and each of them having 2 sub-children. The run-time for the Tseitin part of the program is linear in the number of sub-clauses, but the simplification of the clause to CNF is exponential $O(2^n)$ because of the recursive way the (sub)trees are resolved level by level using the top down approach, going down to root each time.
+
 ---
 
 \newpage
@@ -35,7 +37,7 @@ The parser will try to throw errors if it can find simple formatting errors inst
 2. Missing Header (required for DIMACs format, but can be dodged simply by starting with a 'p')  
 3. Invalid Line Format (ie invalid character, doesn't end with a '0')
 
-Some critical assumptions made include an empty set is immedietely unsat, and an empty formula is also unsat. `dpllOpt()` is deprecated, and `dpll()` is what's used. The formula will also return without a full assignment if the current assignments can satisfy the formula. The formula is represented as a vector of vector (of integers). This does conform with the format. 
+Some critical assumptions made include an empty set is immedietely unsat, and an empty formula is also unsat. `dpllOpt()` is deprecated, and `dpll()` is what's used. The formula will also return without a full assignment if the current assignments can satisfy the formula. The formula is represented as a vector of vector (of integers). This does conform with the format.
 
 It passes variables by value recursively since formulas are modified on the fly. Poor allocator, but unfortunately that's not required in the spec, so we abused it to the best of our abilities.
 
@@ -67,9 +69,9 @@ The actual code flow is:
 9. If DPLL_Inner, return true
 10. else, return false.
 
-While in theory, the worst-case performance for DPLL is O(2^n) and worst-case space performance is O(n), the facile implementation is very reckless with runtimes and allocation. The worst-case performance for this method is O(n2^n) and worst-case space performance is O(n^2). This is because each of the O(n^2) searches runs in O(n) time and can add O(n) memory, resulting in all runtimes to be O(n) times the idealized form. 
+While in theory, the worst-case performance for DPLL is O(2^n) and worst-case space performance is O(n), the facile implementation is very reckless with runtimes and allocation. The worst-case performance for this method is O(n2^n) and worst-case space performance is O(n^2). This is because each of the O(n^2) searches runs in O(n) time and can add O(n) memory, resulting in all runtimes to be O(n) times the idealized form.
 
-Ways to improve this algorithm would be to pass-by-reference, and keep changes local, resulting in O(n) space. It'd also be better to track each clause, to tell if there's a conflict in constant time. Though this will likely have a very large initial overhead, the asymptotics will be a lot more favorable. Overall however, this is correct and conforms to the specification applied. As such, we are happy with the correctness of our code.
+Ways to improve this algorithm would be to pass-by-reference, and keep changes local, resulting in O(n) space. It'd also be better to track each clause, to tell if there's a conflict in constant time. Though this will likely have a very large initial overhead, the asymptotics will be a lot more favourable. Overall however, this is correct and conforms to the specification applied. As such, we are happy with the correctness of our code.
 
 ---
 
@@ -110,6 +112,8 @@ This was the only problem that required some of our own thinking. After some dis
 In the end, we resorted to using an exponential ($n!$) growth algorithm by generating all the possible combinations of sum and simplifying to get our sum. All the requirements from the original problem are satisfied.
 
 The simplified result did reveal some insights on how we could optimize our algorithm to reduce time complexity, but the approach was not implemented due to lack of time.
+
+The run-time of this algorithm has exponential growth $O(n!)$ in the number of nodes in the original graph since the encoding requires the generation of all combinations of products from size $1$ to $k$, inclusive. This can be improved by possibly encoding an exclusion for the same based on the relation between $k$ and $n$. The space complexity is also exponential $O(n!+a)$, where $a$ is the number of edges in the input.
 
 `EncodeGraphCover`:
 
