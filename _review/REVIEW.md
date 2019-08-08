@@ -29,19 +29,19 @@ As was required in the spec, the space complexity of Tseitin is linear for gener
 
 ## DPLL
 
-Our output was verified by running it on CNF files found online, as well as Prof. Ward's CNF files from ECE108. Special shoutout to the weird makefile, but `make` should build it, with some sort of output. Largely speaking, the most important thing is that fatures were built to spec.
+Our output was verified by running it on CNF files found online, as well as Prof. Ward's CNF files from ECE108. Special shoutout to the weird makefile, but `make` should build it, with some sort of output. Largely speaking, the most important thing is that features were built to spec.
 
-The parser will try to throw errors if it can find simple formatting errors instead of recovering. Most online sat solvers discovered as roughly as picky - they don't want to speculate on the intent of the user. It will be generous if it can with error messages. The only additional functionality supported was it can take arbitrarily large lists without validing the header line. This was an intentional design decision to allow for convenient test case generation (in case someone modified the test case by hand), as discussed in our presentation. In particular, it can return the following errors:
+The parser will try to throw errors if it can find simple formatting errors instead of recovering. Most online sat solvers discovered as roughly as picky - they don't want to speculate on the intent of the user. It will be generous if it can with error messages. The only additional functionality supported was it can take arbitrarily large lists without validating the header line. This was an intentional design decision to allow for convenient test case generation (in case someone modified the test case by hand), as discussed in our presentation. In particular, it can return the following errors:
 
 1. Bad File (can't open for some reason)  
 2. Missing Header (required for DIMACs format, but can be dodged simply by starting with a 'p')  
 3. Invalid Line Format (ie invalid character, doesn't end with a '0')
 
-Some critical assumptions made include an empty set is immedietely unsat, and an empty formula is also unsat. `dpllOpt()` is deprecated, and `dpll()` is what's used. The formula will also return without a full assignment if the current assignments can satisfy the formula. The formula is represented as a vector of vector (of integers). This does conform with the format.
+Some critical assumptions made include an empty set is immediately UN-SAT, and an empty formula is also UN-SAT. `dpllOpt()` is deprecated, and `dpll()` is what's used. The formula will also return without a full assignment if the current assignments can satisfy the formula. The formula is represented as a vector of vector (of integers). This does conform with the format.
 
 It passes variables by value recursively since formulas are modified on the fly. Poor allocator, but unfortunately that's not required in the spec, so we abused it to the best of our abilities.
 
-BCP is implemented to run in linear time, and does physically mutate the formula (removing all satisfied clauses, and unsatisfiable variables). It can also return if the current assignment is satisfactory (pre-BCP), or conflicting, returning BCP_SAT, or BCP_UNSAT. BCP_UNSAT only means at a local scale of assignments it's unsat (and does not comment on formulas).
+BCP is implemented to run in linear time, and does physically mutate the formula (removing all satisfied clauses, and unsatisfiable variables). It can also return if the current assignment is satisfactory (pre-BCP), or conflicting, returning BCP_SAT, or BCP_UNSAT. BCP_UNSAT only means at a local scale of assignments it's UN-SAT (and does not comment on formulas).
 
 Satisfying assignment is also run in linear time, and is run every instance of the call.
 
@@ -87,7 +87,7 @@ The first few tutorials were really interesting, and taught me some really valua
 
 The biggest challenge in this problem was actually the compilation of `klee`. The first few parts of the tutorial worked fine with the DOCKER container version of `klee`, **but** the actual `coreutils` parts of the assignment required compilation of `klee` from scratch on a virtual machine.
 
-The number of hours spent on actually getting `klee` to compile are not measurable on one hand. A parallely running web-server had to be taken down because the compilation was capping out the RAM on the relatively cheap VM. Optimization had to be done for storage on the VM because all the installation repositories along with build files, capped out the storage as well.
+The number of hours spent on actually getting `klee` to compile are not measurable on one hand. A parallelly running web-server had to be taken down because the compilation was capping out the RAM on the relatively cheap VM. Optimization had to be done for storage on the VM because all the installation repositories along with build files, capped out the storage as well.
 
 `Klee`:
 
