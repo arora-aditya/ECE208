@@ -2,7 +2,7 @@
 
 ## Daniel McCormick and Aditya Arora
 
-The code for this project can be found [here](https://drive.google.com/drive/folders/1LFbqsG2xO_noJVmvL7gm0R5SH9Vm40gZ)
+The code for this project can be found [here](https://drive.google.com/drive/folders/1LFbqsG2xO_noJVmvL7gm0R5SH9Vm40gZ). If you'd like access to the github repository, please daniel.mccormick@uwaterloo.ca or aditya.arora@uwaterloo.ca. 
 
 ---
 
