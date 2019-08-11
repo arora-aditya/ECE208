@@ -2,7 +2,7 @@
 
 ## Daniel McCormick and Aditya Arora
 
-The code for this project can be found [here](https://drive.google.com/drive/folders/1LFbqsG2xO_noJVmvL7gm0R5SH9Vm40gZ). If you'd like access to the github repository, please daniel.mccormick@uwaterloo.ca or aditya.arora@uwaterloo.ca. 
+The code for this project can be found [here](https://drive.google.com/drive/folders/1LFbqsG2xO_noJVmvL7gm0R5SH9Vm40gZ). If you'd like access to the github repository, please contact daniel.mccormick@uwaterloo.ca or aditya.arora@uwaterloo.ca.
 
 ---
 
@@ -45,7 +45,7 @@ Some assumptions made include an empty set is immediately UNSAT, and an empty fo
 
 It passes variables by value recursively since formulas are modified on the fly. While tracking changes at each level of recursion may be more friendly to the allocator, it is not required in the spec, and as such was not implemented.
 
-BCP is implemented to run in linear time, and does physically mutate the formula (removing all satisfied clauses, and unsatisfiable variables). It can also return if the current assignment is satisfactory (pre-BCP), or conflicting, returning BCP_SAT, or BCP_UNSAT. BCP_UNSAT only means at a local scale of assignments it's UN-SAT (and does not imply the formula itself is unsat).
+BCP is implemented to run in linear time, and does physically mutate the formula (removing all satisfied clauses, and unsatisfiable variables). It can also return if the current assignment is satisfactory (pre-BCP), or conflicting, returning BCP_SAT, or BCP_UNSAT. BCP_UNSAT only means at a local scale of assignments it's UN-SAT (and does not imply the formula itself is UN-SAT).
 
 Satisfying assignment is also run in linear time, and is run every instance of the call.
 
@@ -101,9 +101,9 @@ The number of hours spent on actually getting `klee` to compile are not measurab
 
 Once the compilation was done, the actual "testing" of `coreutils` was actually extremely easy.
 
-- [`md5sum`](https://github.com/arora-aditya/ECE208/tree/master/Klee/Results/md5sum): 1 ptr error
-- [`mkdir`](https://github.com/arora-aditya/ECE208/tree/master/Klee/Results/mkdir): 1 model error, 1 ptr error
-- [`paste`](https://github.com/arora-aditya/ECE208/tree/master/Klee/Results/paste): 10 ptr errors
+- [`md5sum`](https://drive.google.com/open?id=1BUBYlEuk_QzFwQ5KTpnqn2ipNMWTrCsw): 1 ptr error
+- [`mkdir`](https://drive.google.com/open?id=13LnGAuFXnbl53c3nRu1RFBy0ZuAh5W0b): 1 model error, 1 ptr error
+- [`paste`](https://drive.google.com/open?id=1KGyvC9ThN9dRCwTPzods9h8T3FSEvgAS): 10 ptr errors
 
 
 ---
@@ -127,6 +127,6 @@ The run-time of this algorithm has exponential growth $O(n!)$ in the number of n
 4. Convert overall clause to CNF
 5. Write CNF file
 
-Our final results for this algorithm were compared with the output of a more [traditional vertex cover algorithm](https://github.com/arora-aditya/ECE208/blob/master/GraphCover/min_graph_cover.py).
+Our final results for this algorithm were compared with the output of a more [traditional vertex cover algorithm](https://github.com/arora-aditya/ECE208/blob/master/GraphCover/min_graph_cover.py) that basically uses brute force to determine the minimum cover.
 
 ---
