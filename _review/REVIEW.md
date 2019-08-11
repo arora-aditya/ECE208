@@ -2,6 +2,8 @@
 
 ## Daniel McCormick and Aditya Arora
 
+The code for this project can be found [here](https://drive.google.com/drive/folders/1LFbqsG2xO_noJVmvL7gm0R5SH9Vm40gZ)
+
 ---
 
 ## Tseitin Transform
@@ -119,7 +121,7 @@ The run-time of this algorithm has exponential growth $O(n!)$ in the number of n
 
 1. All edges from the adjacency matrix are added to the CNF clauses
 2. Generate all combinations of the sum for all values 1 to k
-3. OR all the clauses generated above, and minimize
+3. Logically OR all the clauses generated above, and minimize
 4. Convert overall clause to CNF
 5. Write CNF file
 
